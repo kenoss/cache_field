@@ -1,0 +1,7 @@
+error: cache fields arleady registered. type name conflicted?
+  --> tests/ui/fail_modules.rs:16:5
+   |
+16 |     #[cache_field::impl_cached_method]
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the attribute macro `cache_field::impl_cached_method` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -54,7 +54,7 @@ fn impl_cached_method_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<
     let mut impl_ = impl_.clone();
     impl_.items = items;
     let fields = fields.into_iter().filter_map(|x| x).collect_vec();
-    storage::register_cache_fields(&impl_.self_ty, fields);
+    storage::register_cache_fields(&impl_.self_ty, fields)?;
 
     Ok(quote! {
         #impl_

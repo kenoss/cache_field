@@ -6,6 +6,10 @@ edition = "2021"
 [lib]
 proc-macro = true
 
+[[test]]
+name = "tests"
+path = "tests/test.rs"
+
 [dependencies]
 itertools = "0.13.0"
 proc-macro2 = "1.0.86"
