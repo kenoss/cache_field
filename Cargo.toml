@@ -1,7 +1,15 @@
 [package]
 name = "struct_cache_field"
-version = "0.0.0"
+version = "0.0.1"
 edition = "2021"
+authors = ["keno (Ken Okada) <keno.ss57@gmail.com>"]
+categories = ["rust-patterns"]
+description = "Proc macro for caching method to struct field"
+documentation = "https://docs.rs/struct_cache_field"
+keywords = ["cache", "proc-macro"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kenoss/struct_cache_field"
+rust-version = "1.80.0"
 
 [lib]
 proc-macro = true
