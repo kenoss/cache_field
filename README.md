@@ -1,6 +1,6 @@
-# `cache_field`
+# `struct_cache_field`
 
-`cache_field` crate provides macros that cache method results to struct fields.
+`struct_cache_field` crate provides macros that cache method results to struct fields.
 
 ## Licence
 

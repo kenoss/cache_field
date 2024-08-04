@@ -21,7 +21,7 @@ pub(crate) fn register_cache_fields(
     if CACHE_FIELDS.lock().unwrap().contains_key(&ty) {
         return Err(syn::Error::new(
             ty.span(),
-            "type name conflicted, cache fields arleady registered. maybe someone forgot to add `#[cache_field::add_cache_field]`?",
+            "type name conflicted, cache fields arleady registered. maybe someone forgot to add `#[struct_cache_field::add_cache_field]`?",
         ));
     }
 

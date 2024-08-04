@@ -1,11 +1,11 @@
-#[cache_field::impl_cached_method]
+#[struct_cache_field::impl_cached_method]
 impl Hoge {
     pub fn two_times_x(&self) -> u64 {
         2 * self.x
     }
 }
 
-#[cache_field::add_cache_field]
+#[struct_cache_field::add_cache_field]
 struct Hoge {
     x: u64,
 }

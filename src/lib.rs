@@ -24,7 +24,7 @@ fn impl_cached_method_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<
     if !args.is_empty() {
         return Err(syn::Error::new_spanned(
             args,
-            "arguments must be empty `cache_field::impl_cached_method`",
+            "arguments must be empty `struct_cache_field::impl_cached_method`",
         ));
     }
 
@@ -106,7 +106,7 @@ fn add_cache_field_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<Tok
     if !args.is_empty() {
         return Err(syn::Error::new_spanned(
             args,
-            "arguments must be empty `cache_field::add_cache_field`",
+            "arguments must be empty `struct_cache_field::add_cache_field`",
         ));
     }
 
@@ -122,13 +122,16 @@ fn add_cache_field_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<Tok
 
     // Define a new struct holding caches. This makes initialization easy.
     let cache_fields_struct_name = syn::Ident::new(
-        &format!("__cache_field__{}CacheFields", &struct_.ident.to_string()),
+        &format!(
+            "__struct_cache_field__{}CacheFields",
+            &struct_.ident.to_string()
+        ),
         Span::call_site(),
     );
     let Some(cache_fields) = storage::withdraw_cache_fields(&struct_.ident) else {
         return Err(syn::Error::new(
             struct_.fields.span(),
-            "cached methods not defined. maybe forgot to `#[cache_field::impl_cached_method]`?",
+            "cached methods not defined. maybe forgot to `#[struct_cache_field::impl_cached_method]`?",
         ));
     };
     let cache_fields_struct = quote! {
@@ -175,7 +178,7 @@ mod tests {
                 }})
             }
         })?;
-        let expected_cache_field = quote! {
+        let expected_struct_cache_field = quote! {
             two_times_x: ::core::cell::OnceCell<u64>
         };
 
@@ -186,7 +189,7 @@ mod tests {
         dbg!(expected_item.clone().into_token_stream().to_string());
         assert_eq!(
             (got_item, Some(got_cache_field.to_string())),
-            (expected_item, Some(expected_cache_field.to_string()))
+            (expected_item, Some(expected_struct_cache_field.to_string()))
         );
 
         Ok(())

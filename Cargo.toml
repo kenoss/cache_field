@@ -1,5 +1,5 @@
 [package]
-name = "cache_field"
+name = "struct_cache_field"
 version = "0.0.0"
 edition = "2021"
 

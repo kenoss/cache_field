@@ -1,10 +1,10 @@
-error: type name conflicted, cache fields arleady registered. maybe someone forgot to add `#[cache_field::add_cache_field]`?
+error: type name conflicted, cache fields arleady registered. maybe someone forgot to add `#[struct_cache_field::add_cache_field]`?
   --> tests/ui/fail_modules.rs:11:5
    |
-11 |     #[cache_field::impl_cached_method]
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |     #[struct_cache_field::impl_cached_method]
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the attribute macro `cache_field::impl_cached_method` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the attribute macro `struct_cache_field::impl_cached_method` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0412]: cannot find type `Hoge` in this scope
  --> tests/ui/fail_modules.rs:3:10
