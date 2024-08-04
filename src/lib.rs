@@ -125,7 +125,7 @@ fn add_cache_field_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<Tok
         &format!("__cache_field__{}CacheFields", &struct_.ident.to_string()),
         Span::call_site(),
     );
-    let Some(cache_fields) = storage::get_cache_fields(&struct_.ident) else {
+    let Some(cache_fields) = storage::withdraw_cache_fields(&struct_.ident) else {
         return Err(syn::Error::new(
             struct_.fields.span(),
             "cached methods not defined. maybe forgot to `#[cache_field::impl_cached_method]`?",

@@ -5,6 +5,11 @@ mod module1 {
             2 * self.x
         }
     }
+
+    #[cache_field::add_cache_field]
+    pub struct Hoge {
+        pub x: u64,
+    }
 }
 
 mod module2 {

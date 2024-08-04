@@ -21,7 +21,7 @@ pub(crate) fn register_cache_fields(
     if CACHE_FIELDS.lock().unwrap().contains_key(&ty) {
         return Err(syn::Error::new(
             ty.span(),
-            "cache fields arleady registered. type name conflicted?",
+            "type name conflicted, cache fields arleady registered. maybe someone forgot to add `#[cache_field::add_cache_field]`?",
         ));
     }
 
@@ -30,10 +30,10 @@ pub(crate) fn register_cache_fields(
     Ok(())
 }
 
-pub(crate) fn get_cache_fields(ty: &proc_macro2::Ident) -> Option<Vec<syn::Field>> {
+pub(crate) fn withdraw_cache_fields(ty: &proc_macro2::Ident) -> Option<Vec<syn::Field>> {
     let ty = ty.to_token_stream().to_string();
-    let map = CACHE_FIELDS.lock().unwrap();
-    let cache_fields = map.get(&ty)?;
+    let mut map = CACHE_FIELDS.lock().unwrap();
+    let cache_fields = map.remove(&ty)?;
     let cache_fields = cache_fields
         .iter()
         .map(|field| {

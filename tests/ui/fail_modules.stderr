@@ -1,7 +1,18 @@
-error: cache fields arleady registered. type name conflicted?
-  --> tests/ui/fail_modules.rs:16:5
+error: type name conflicted, cache fields arleady registered. maybe someone forgot to add `#[cache_field::add_cache_field]`?
+  --> tests/ui/fail_modules.rs:11:5
    |
-16 |     #[cache_field::impl_cached_method]
+11 |     #[cache_field::impl_cached_method]
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the attribute macro `cache_field::impl_cached_method` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0412]: cannot find type `Hoge` in this scope
+ --> tests/ui/fail_modules.rs:3:10
+  |
+3 |     impl Hoge {
+  |          ^^^^ not found in this scope
+  |
+help: consider importing this struct
+  |
+2 +     use crate::module2::Hoge;
+  |
