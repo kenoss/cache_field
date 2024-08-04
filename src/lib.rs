@@ -1,3 +1,73 @@
+//! # `struct_cache_field`
+//!
+//! `struct_cache_field` provides procedual macros to declare/manage cache fields for methods.
+//!
+//! ## Usage
+//!
+//! ```rust
+//! #[struct_cache_field::impl_cached_method]
+//! impl Hoge {
+//!     pub fn two_times_x(&self) -> u64 {
+//!         2 * self.x
+//!     }
+//!
+//!     fn x_plus_1(&mut self) -> u64 {
+//!         self.x = self.x + 1;
+//!         self.x
+//!     }
+//! }
+//!
+//! #[struct_cache_field::add_cache_field]
+//! struct Hoge {
+//!     x: u64,
+//! }
+//!
+//! fn main() {
+//!     let mut hoge = Hoge {
+//!         x: 1,
+//!         __cache_fields__: Default::default(),
+//!     };
+//!
+//!     assert_eq!(hoge.two_times_x(), &2);
+//!     assert_eq!(hoge.two_times_x(), &2);
+//!     hoge.x = 2;
+//!     assert_eq!(hoge.two_times_x(), &2);
+//!
+//!     assert_eq!(hoge.x_plus_1(), &3);
+//!     assert_eq!(hoge.x_plus_1(), &3);
+//!     hoge.x = 3;
+//!     assert_eq!(hoge.x_plus_1(), &3);
+//! }
+//! ```
+//!
+//! `#[impl_cached_method]` generates a struct to hold caches for methods.
+//!
+//! ```rust
+//! struct HogeCacheFields {
+//!     two_times_x: ::core::cell::OnceCell<u64>,
+//!     x_plus_1: ::core::cell::OnceCell<u64>,
+//! }
+//! ```
+//!
+//! `#[add_cache_field]` adds it to the original struct definition.
+//!
+//! ```rust
+//! # struct HogeCacheFields;
+//! struct Hoge {
+//!     x: u64,
+//!     __cache_fields__: HogeCacheFields,
+//! }
+//! ```
+//!
+//! Note that currently procedural macro in expression position is currently not supported.
+//! So, you need to initialize `__cache_fields__` with `Default::default()` by yourself.
+//!
+//! You MUST use both `#[impl_cached_method]` and `#[add_cache_field]` together.
+//! If you use only `#[impl_cached_method]`, it can cause a compile error in other crates.
+//! Because this crate uses type-name-keyed compile time storage.
+//! In the above example, `#[impl_cached_method]` registeres data with key `"Hoge"`, and
+//! `#[add_cache_field]` consumes it.
+
 mod storage;
 
 use itertools::{multiunzip, Itertools};
@@ -162,7 +232,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_rewrite_cached_method() -> syn::Result<()> {
+    fn test_rewrite_cached_method_1() -> syn::Result<()> {
         use quote::ToTokens;
 
         let item = syn::parse2(quote! {
@@ -180,6 +250,42 @@ mod tests {
         })?;
         let expected_struct_cache_field = quote! {
             two_times_x: ::core::cell::OnceCell<u64>
+        };
+
+        let Ok((got_item, Some(got_cache_field))) = rewrite_cached_method(&item) else {
+            panic!();
+        };
+        dbg!(got_item.clone().into_token_stream().to_string());
+        dbg!(expected_item.clone().into_token_stream().to_string());
+        assert_eq!(
+            (got_item, Some(got_cache_field.to_string())),
+            (expected_item, Some(expected_struct_cache_field.to_string()))
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_rewrite_cached_method_2() -> syn::Result<()> {
+        use quote::ToTokens;
+
+        let item = syn::parse2(quote! {
+            fn x_plus_1(&mut self) -> u64 {
+                self.x = self.x + 1;
+                self.x
+            }
+        })?;
+
+        let expected_item: syn::ImplItem = syn::parse2(quote! {
+            fn x_plus_1(&mut self) -> &u64 {
+                self.__cache_fields__.x_plus_1.get_or_init(|| {{
+                    self.x = self.x + 1;
+                    self.x
+                }})
+            }
+        })?;
+        let expected_struct_cache_field = quote! {
+            x_plus_1: ::core::cell::OnceCell<u64>
         };
 
         let Ok((got_item, Some(got_cache_field))) = rewrite_cached_method(&item) else {
