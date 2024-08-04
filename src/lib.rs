@@ -43,7 +43,7 @@
 //! `#[impl_cached_method]` generates a struct to hold caches for methods.
 //!
 //! ```rust
-//! struct HogeCacheFields {
+//! struct __struct_cache_field__HogeCacheFields {
 //!     two_times_x: ::core::cell::OnceCell<u64>,
 //!     x_plus_1: ::core::cell::OnceCell<u64>,
 //! }
@@ -52,10 +52,10 @@
 //! `#[add_cache_field]` adds it to the original struct definition.
 //!
 //! ```rust
-//! # struct HogeCacheFields;
+//! # struct __struct_cache_field__HogeCacheFields;
 //! struct Hoge {
 //!     x: u64,
-//!     __cache_fields__: HogeCacheFields,
+//!     __cache_fields__: __struct_cache_field__HogeCacheFields,
 //! }
 //! ```
 //!
