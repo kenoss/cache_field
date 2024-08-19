@@ -1,3 +1,5 @@
+#![allow(clippy::needless_doctest_main)]
+
 //! # `struct_cache_field`
 //!
 //! `struct_cache_field` provides procedual macros to declare/manage cache fields for methods.
@@ -101,29 +103,26 @@ fn impl_cached_method_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<
     let syn::Item::Impl(impl_) = input else {
         return Err(syn::Error::new(input.span(), "expected `impl ...`"));
     };
-    match &impl_.trait_ {
-        Some((_, path, for_)) => {
-            let mut spans = TokenStream::new();
-            spans.append_all([path]);
-            spans.append_all([for_]);
-            return Err(syn::Error::new_spanned(
-                spans,
-                "expected `impl ...` without trait",
-            ));
-        }
-        _ => {}
+    if let Some((_, path, for_)) = &impl_.trait_ {
+        let mut spans = TokenStream::new();
+        spans.append_all([path]);
+        spans.append_all([for_]);
+        return Err(syn::Error::new_spanned(
+            spans,
+            "expected `impl ...` without trait",
+        ));
     }
 
     let (items, fields): (Vec<syn::ImplItem>, Vec<Option<TokenStream>>) = multiunzip(
         impl_
             .items
             .iter()
-            .map(|item| rewrite_cached_method(item))
+            .map(rewrite_cached_method)
             .collect::<syn::Result<Vec<_>>>()?,
     );
     let mut impl_ = impl_.clone();
     impl_.items = items;
-    let fields = fields.into_iter().filter_map(|x| x).collect_vec();
+    let fields = fields.into_iter().flatten().collect_vec();
     storage::register_cache_fields(&impl_.self_ty, &impl_.generics, fields)?;
 
     Ok(quote! {
