@@ -1,0 +1,23 @@
+error: generics differ, which must coincide as string:
+           in impl cached methods: < T > where T : ToString + From < String > ,
+           in struct definition:   < T > where T : ToString,
+  --> tests/ui/fail_generics_where_differ.rs:13:12
+   |
+13 | struct Hoge<T>
+   |            ^^^
+
+error[E0609]: no field `__cache_fields__` on type `&Hoge<T>`
+ --> tests/ui/fail_generics_where_differ.rs:1:1
+  |
+1 | #[struct_cache_field::impl_cached_method]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unknown field
+  |
+  = note: this error originates in the attribute macro `struct_cache_field::impl_cached_method` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0560]: struct `Hoge<String>` has no field named `__cache_fields__`
+  --> tests/ui/fail_generics_where_differ.rs:25:9
+   |
+25 |         __cache_fields__: Default::default(),
+   |         ^^^^^^^^^^^^^^^^ `Hoge<_>` does not have this field
+   |
+   = note: all struct fields are already assigned

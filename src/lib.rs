@@ -124,7 +124,7 @@ fn impl_cached_method_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<
     let mut impl_ = impl_.clone();
     impl_.items = items;
     let fields = fields.into_iter().filter_map(|x| x).collect_vec();
-    storage::register_cache_fields(&impl_.self_ty, fields)?;
+    storage::register_cache_fields(&impl_.self_ty, &impl_.generics, fields)?;
 
     Ok(quote! {
         #impl_
@@ -198,22 +198,43 @@ fn add_cache_field_aux(args: &TokenStream, input: &syn::Item) -> syn::Result<Tok
         ),
         Span::call_site(),
     );
-    let Some(cache_fields) = storage::withdraw_cache_fields(&struct_.ident) else {
-        return Err(syn::Error::new(
-            struct_.fields.span(),
-            "cached methods not defined. maybe forgot to `#[struct_cache_field::impl_cached_method]`?",
-        ));
-    };
+    let cache_fields = storage::withdraw_cache_fields(&struct_.ident, &struct_.generics)?;
+    // Extract type parameter and and make phantom fields for the struct.
+    //
+    // It is easier to use phantom fields rather than checking each type parameter is actually used.
+    // We use them only for `syn::GenericParam::Type`.
+    let mut generics = struct_.generics.clone();
+    generics.params = generics
+        .params
+        .into_iter()
+        .filter(|param| match param {
+            syn::GenericParam::Lifetime(_) | syn::GenericParam::Const(_) => false,
+            syn::GenericParam::Type(_) => true,
+        })
+        .collect();
+    let phantom_fields = generics
+        .params
+        .iter()
+        .enumerate()
+        .map(|(i, param)| {
+            let ident = syn::Ident::new(&format!("_phantom{i}"), Span::call_site());
+            quote! {
+                #ident: ::core::marker::PhantomData<#param>
+            }
+        })
+        .collect_vec();
+    let (_, ty_generics, where_clause) = generics.split_for_impl();
     let cache_fields_struct = quote! {
         #[derive(Default)]
-        struct #cache_fields_struct_name {
+        struct #cache_fields_struct_name #ty_generics #where_clause {
             #(#cache_fields,)*
+            #(#phantom_fields,)*
         }
     };
 
     // Add the above struct to original struct.
     let embedding = syn::Field::parse_named
-        .parse2(quote! { __cache_fields__: #cache_fields_struct_name })
+        .parse2(quote! { __cache_fields__: #cache_fields_struct_name #ty_generics })
         .unwrap();
     let mut fields = fields.clone();
     fields.named.push(embedding);

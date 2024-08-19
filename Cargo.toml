@@ -19,8 +19,10 @@ name = "tests"
 path = "tests/test.rs"
 
 [dependencies]
+big_s = "1.0.2"
+indoc = "2.0.5"
 itertools = "0.13.0"
 proc-macro2 = "1.0.86"
 quote = "1.0.36"
-syn = { version = "2.0.72", features = ["full", "extra-traits"] }
+syn = { version = "2.0.72", features = ["full", "extra-traits", "visit-mut"] }
 trybuild = "1.0.97"
